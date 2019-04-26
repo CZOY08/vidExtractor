@@ -77,14 +77,18 @@ def compressImage(dir):
 
     for pic in pic_list:
         image = Image.open(dir + '/' + pic)
-        if height >= 720:
-            rate = 0.1
+        if height >= 1080:
+            rate = 0.125
+        elif height >= 720:
+            rate = 0.1875
+        elif height >= 480:
+            rate = 0.25
         else:
-            rate = 0.2
+            rate = 0.5
         new_width = int(width * rate)  # 新的宽
         new_height = int(height * rate)  # 新的高
         image.thumbnail((new_width, new_height), Image.ANTIALIAS)  # 生成缩略图
-        image.save(dir + '/' + pic, 'JPEG')  # 保存到原路径
+        image.save(dir + '/' + pic, 'PNG')  # 保存到原路径
 
 
 def get_length(filename):
