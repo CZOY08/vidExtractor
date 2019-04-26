@@ -101,7 +101,7 @@ def get_length(filename):
 
 
 # cut and copress the image and save them in the folder
-def cut(pic_cut_dir, video_dir, filename, video_format):
+def cut(pic_cut_dir, video_dir, filename, video_format, span):
     real_video_dir = video_dir + '/' + filename + '.' + video_format
     print(real_video_dir)
     length = get_length(real_video_dir)
@@ -122,9 +122,9 @@ def cut(pic_cut_dir, video_dir, filename, video_format):
             else:
                 time = str(hour) + ':' + str(minute) + ':01'
 
-        if os.path.isfile(pic_cut_dir + '/' + str(count) + '.jpg'):
-            print('pass ' + pic_cut_dir + '/' + str(count) + '.jpg')
-            minute += 1
+        if os.path.isfile(pic_cut_dir + '/' + str(count) + '.png'):
+            print('pass ' + pic_cut_dir + '/' + str(count) + '.png')
+            minute += span
             if minute >= 60:
                 minute = minute % 60
                 hour += 1
@@ -132,12 +132,12 @@ def cut(pic_cut_dir, video_dir, filename, video_format):
 
         ff = FFmpeg(
             inputs={real_video_dir: '-ss ' + time},
-            outputs={pic_cut_dir + '/' + str(count) + '.jpg': '-f image2 -t 0.001 -y'}
+            outputs={pic_cut_dir + '/' + str(count) + '.png': '-f image2 -t 0.001 -y'}
         )
 
         ff.run()
 
-        minute += 1
+        minute += span
         if minute >= 60:
             minute = minute % 60
             hour += 1
@@ -155,9 +155,9 @@ def cut(pic_cut_dir, video_dir, filename, video_format):
             else:
                 time = str(hour) + ':' + str(minute) + ':01'
 
-        if os.path.isfile(pic_cut_dir + '/' + str(count) + '.jpg'):
-            print('pass ' + pic_cut_dir + '/' + str(count) + '.jpg')
-            minute += 1
+        if os.path.isfile(pic_cut_dir + '/' + str(count) + '.png'):
+            print('pass ' + pic_cut_dir + '/' + str(count) + '.png')
+            minute += span
             if minute >= 60:
                 minute = minute % 60
                 hour += 1
@@ -166,20 +166,20 @@ def cut(pic_cut_dir, video_dir, filename, video_format):
         try:
             ff = FFmpeg(
                 inputs={real_video_dir: '-ss ' + time},
-                outputs={pic_cut_dir + '/' + str(count) + '.jpg': '-f image2 -t 0.001 -y'}
+                outputs={pic_cut_dir + '/' + str(count) + '.png': '-f image2 -t 0.001 -y'}
 
             )
             ff.run()
         except:
             print('hour=' + str(hour))
-        minute += 1
+        minute += span
 
     compressImage(pic_cut_dir)
     return True
 
 
-def merge_pic(dir, pic_format):
-    file_name = dir + ".jpg"
+def merge_pic(dir, pic_format, IMAGE_COLUMN):
+    file_name = dir + ".png"
 
     pic_list = []
 
@@ -200,13 +200,13 @@ def merge_pic(dir, pic_format):
     width = im.size[0]
     height = im.size[1]
     # print(height)
-    IMAGE_COLUMN = 6  # 图片间隔，也就是合并成一张图后，一共有几列
+    #IMAGE_COLUMN = 6  # 图片间隔，也就是合并成一张图后，一共有几列
     IMAGE_ROW = len(pic_list) // IMAGE_COLUMN + 1  # 图片间隔，也就是合并成一张图后，一共有几行
     # print(IMAGE_ROW)
 
     if height * len(pic_list) // IMAGE_COLUMN > 65500:
         compressImage(dir)
-        return (merge_pic(dir, pic_format))
+        return (merge_pic(dir, pic_format, IMAGE_COLUMN))
 
     to_image = Image.new('RGB', (IMAGE_COLUMN * width, IMAGE_ROW * height))  # 创建一个新图
 
@@ -222,17 +222,17 @@ def merge_pic(dir, pic_format):
 
 
 # create pic(including create folder, cut pics, merge pics, del folder)
-def create_pics(video_dir, sub_pic_dir, pic_to_create, video_format, pic_format):
+def create_pics(video_dir, sub_pic_dir, pic_to_create, video_format, pic_format, column, span):
     for dir in pic_to_create:
         # create folder for every video(only for cutting, will del)
         pic_cut_dir = sub_pic_dir + '/' + dir
         make_dir(pic_cut_dir)
 
         # cut pics
-        cut(pic_cut_dir, video_dir, dir, video_format)
+        cut(pic_cut_dir, video_dir, dir, video_format, span)
 
         # merge pics
-        merge_pic(pic_cut_dir, pic_format)
+        merge_pic(pic_cut_dir, pic_format, column)
 
         # del cutter folder
         del_dir(pic_cut_dir)
@@ -243,7 +243,7 @@ def del_pics(pic_list, sub_pic_dir, pic_format):
         os.remove(sub_pic_dir + '/' + pic + '.' + pic_format)
 
 
-def do_cut(video_dir, pic_dir='/data/pics', video_format='mp4', pic_format='jpg'):
+def do_cut(video_dir, pic_dir, video_format, pic_format, column, span):
     # if pic_dir does not exist, create one
     make_dir(pic_dir)
 
@@ -271,7 +271,7 @@ def do_cut(video_dir, pic_dir='/data/pics', video_format='mp4', pic_format='jpg'
     # find what's only in video_dir and add it to sub_pic_dir
     pic_to_create = [item for item in video_name if item not in sub_pic_name]
     print('to add ' + str(pic_to_create))
-    create_pics(video_dir, sub_pic_dir, pic_to_create, video_format, pic_format)
+    create_pics(video_dir, sub_pic_dir, pic_to_create, video_format, pic_format, column, span)
 
     # find what's only in pic_dir and del the pic
     pic_to_del = [item for item in sub_pic_name if item not in video_name]
@@ -279,7 +279,7 @@ def do_cut(video_dir, pic_dir='/data/pics', video_format='mp4', pic_format='jpg'
     del_pics(pic_to_del, sub_pic_dir, pic_format)
 
 
-def cut_ctbrec(video_dir, pic_dir, video_format='m3u8', pic_format='jpg'):
+def cut_ctbrec(video_dir, pic_dir, video_format='m3u8', pic_format='png'):
     # if pic_dir does not exist, create one
     make_dir(pic_dir)
 
@@ -307,14 +307,17 @@ def cut_ctbrec(video_dir, pic_dir, video_format='m3u8', pic_format='jpg'):
         del_dir(pic_cut_dir)
 
 
-def main(vid_dir, pic_dir):
+def main(vid_dir, pic_dir, span, column):
 
 
     members = get_members(vid_dir)
     print('ctb_members = '+str(members))
 
+    video_format = 'mp4'
+    pic_format = 'png'
+
     for member in members:
-        do_cut(vid_dir + '/' + member, pic_dir)
+        do_cut(vid_dir + '/' + member, pic_dir, video_format, pic_format, column, span)
 
     pic_member = get_members(pic_dir)
     pic_member_to_del = [item for item in pic_member if item not in members]

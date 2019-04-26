@@ -9,5 +9,7 @@ if __name__ == "__main__":
     vid_dir = config['vid_dir']
     #print(vid_dir)
     pic_dir = config['pic_dir']
+    span = int(config['span'])
+    column =int(config['column'])
 
-    do_extract.main(vid_dir, pic_dir)
+    do_extract.main(vid_dir, pic_dir, span, column)

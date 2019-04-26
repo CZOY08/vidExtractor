@@ -20,7 +20,9 @@ def load_config():
         f = open(config_loc, 'w')
         vid_dir = input('vid dir:')
         pic_dir = input('pic dir:')
-        config_content = json.dumps({'vid_dir': vid_dir, 'pic_dir': pic_dir}, separators=(',', ': '))
+        span = input('span:')
+        column = input('column:')
+        config_content = json.dumps({'vid_dir': vid_dir, 'pic_dir': pic_dir, 'span': span, 'column': column}, separators=(',', ': '))
         print(config_content)
         f.write(config_content)
 
