@@ -78,17 +78,17 @@ def compressImage(dir):
     for pic in pic_list:
         image = Image.open(dir + '/' + pic)
         if height >= 1080:
-            rate = 0.125
+            rate = 0.1
         elif height >= 720:
-            rate = 0.1875
+            rate = 0.15
         elif height >= 480:
-            rate = 0.25
+            rate = 0.225
         else:
-            rate = 0.5
+            rate = 0.33333333
         new_width = int(width * rate)  # 新的宽
         new_height = int(height * rate)  # 新的高
         image.thumbnail((new_width, new_height), Image.ANTIALIAS)  # 生成缩略图
-        image.save(dir + '/' + pic, 'PNG')  # 保存到原路径
+        image.save(dir + '/' + pic, 'JPEG')  # 保存到原路径
 
 
 def get_length(filename):
@@ -126,8 +126,8 @@ def cut(pic_cut_dir, video_dir, filename, video_format, span):
             else:
                 time = str(hour) + ':' + str(minute) + ':01'
 
-        if os.path.isfile(pic_cut_dir + '/' + str(count) + '.png'):
-            print('pass ' + pic_cut_dir + '/' + str(count) + '.png')
+        if os.path.isfile(pic_cut_dir + '/' + str(count) + '.jpg'):
+            print('pass ' + pic_cut_dir + '/' + str(count) + '.jpg')
             minute += span
             if minute >= 60:
                 minute = minute % 60
@@ -136,7 +136,7 @@ def cut(pic_cut_dir, video_dir, filename, video_format, span):
 
         ff = FFmpeg(
             inputs={real_video_dir: '-ss ' + time},
-            outputs={pic_cut_dir + '/' + str(count) + '.png': '-f image2 -t 0.001 -y'}
+            outputs={pic_cut_dir + '/' + str(count) + '.jpg': '-f image2 -t 0.001 -y'}
         )
 
         ff.run()
@@ -159,8 +159,8 @@ def cut(pic_cut_dir, video_dir, filename, video_format, span):
             else:
                 time = str(hour) + ':' + str(minute) + ':01'
 
-        if os.path.isfile(pic_cut_dir + '/' + str(count) + '.png'):
-            print('pass ' + pic_cut_dir + '/' + str(count) + '.png')
+        if os.path.isfile(pic_cut_dir + '/' + str(count) + '.jpg'):
+            print('pass ' + pic_cut_dir + '/' + str(count) + '.jpg')
             minute += span
             if minute >= 60:
                 minute = minute % 60
@@ -170,7 +170,7 @@ def cut(pic_cut_dir, video_dir, filename, video_format, span):
         try:
             ff = FFmpeg(
                 inputs={real_video_dir: '-ss ' + time},
-                outputs={pic_cut_dir + '/' + str(count) + '.png': '-f image2 -t 0.001 -y'}
+                outputs={pic_cut_dir + '/' + str(count) + '.jpg': '-f image2 -t 0.001 -y'}
 
             )
             ff.run()
@@ -183,7 +183,7 @@ def cut(pic_cut_dir, video_dir, filename, video_format, span):
 
 
 def merge_pic(dir, pic_format, IMAGE_COLUMN):
-    file_name = dir + ".png"
+    file_name = dir + ".jpg"
 
     pic_list = []
 
@@ -283,7 +283,7 @@ def do_cut(video_dir, pic_dir, video_format, pic_format, column, span):
     del_pics(pic_to_del, sub_pic_dir, pic_format)
 
 
-def cut_ctbrec(video_dir, pic_dir, video_format='m3u8', pic_format='png'):
+def cut_ctbrec(video_dir, pic_dir, video_format='m3u8', pic_format='jpg'):
     # if pic_dir does not exist, create one
     make_dir(pic_dir)
 
@@ -318,7 +318,7 @@ def main(vid_dir, pic_dir, span, column):
     print('ctb_members = '+str(members))
 
     video_format = 'mp4'
-    pic_format = 'png'
+    pic_format = 'jpg'
 
     for member in members:
         do_cut(vid_dir + '/' + member, pic_dir, video_format, pic_format, column, span)

@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import do_extract
 import config
 
