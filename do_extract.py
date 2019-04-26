@@ -307,19 +307,14 @@ def cut_ctbrec(video_dir, pic_dir, video_format='m3u8', pic_format='jpg'):
         del_dir(pic_cut_dir)
 
 
-def main():
-    # video_dir  = '/data/webdav/recordurbate/videos'
-    # pic_dir = 'data/webdav/pics'
-    # object = 'example'
+def main(vid_dir, pic_dir):
 
-    pic_dir = '/Users/cyg/Desktop/pics'
 
-    ctr_dir = '/Users/cyg/Desktop/vids'
-    members = get_members(ctr_dir)
+    members = get_members(vid_dir)
     print('ctb_members = '+str(members))
 
     for member in members:
-        do_cut(ctr_dir + '/' + member, pic_dir)
+        do_cut(vid_dir + '/' + member, pic_dir)
 
     pic_member = get_members(pic_dir)
     pic_member_to_del = [item for item in pic_member if item not in members]
